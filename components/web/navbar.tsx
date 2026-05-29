@@ -35,11 +35,12 @@ export function Navbar() {
       </div>
 
       <div className="flex items-center gap-2">
-        <Link className={buttonVariants()} href="/auth/signin">
+        <Link className={buttonVariants()} href="/auth/sign-up">
           Sign In
         </Link>
 
-        <Link className={buttonVariants({ variant: "outline" })} href="/login">
+        <Link className={buttonVariants({ variant: "outline" })} 
+          href="/auth/login">
           Log In
         </Link>
         <ThemeToggle />
