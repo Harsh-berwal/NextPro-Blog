@@ -13,6 +13,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
+import { z } from "zod";
 
 export default function SignUpPage() {
   const form = useForm({
@@ -24,8 +26,12 @@ export default function SignUpPage() {
     },
   });
 
-  function onSubmit() { 
-    console.log(form.getValues());
+  async function onSubmit(data: z.infer<typeof signInSchema>) { 
+    await authClient.signUp.email({
+      email: data.email,
+      password: data.password,
+      name: data.name
+    })
   };
 
   return (
