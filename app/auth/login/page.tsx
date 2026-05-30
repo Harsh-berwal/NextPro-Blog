@@ -1,55 +1,53 @@
 "use client";
 
-import { signInSchema } from "@/app/schemas/auth";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { authClient } from "@/lib/auth-client";
 import {
+  Card,
   CardContent,
   CardDescription,
   CardHeader,
-  Card,
   CardTitle,
 } from "@/components/ui/card";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { authClient } from "@/lib/auth-client";
+import { Input } from "@/components/ui/input";
+import { loginSchema } from "@/app/schemas/auth";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
 import * as React from "react";
+import { Loader2 } from "lucide-react";
 
-export default function SignUpPage() {
+export default function LoginPage() {
   const [isPending, startTransition] = React.useTransition();
   const router = useRouter();
   const form = useForm({
-    resolver: zodResolver(signInSchema),
+    resolver: zodResolver(loginSchema),
     defaultValues: {
-      name: "",
       email: "",
       password: "",
     },
   });
 
-  function onSubmit(data: z.infer<typeof signInSchema>) {
+  function onSubmit(data: z.infer<typeof loginSchema>) {
     startTransition(async () => {
-      await authClient.signUp.email({
+      await authClient.signIn.email({
         email: data.email,
         password: data.password,
-        name: data.name,
         fetchOptions: {
           onSuccess: () => {
-            toast.success("Account created successfully");
-            router.push("/auth/login");
+            toast.success("Logged in successfully");
+            router.push("/");
           },
           onError: (error) => {
-            toast.error(error.error.message || "Failed to sign up");
+            toast.error(error.error.message || "Failed to log in");
           },
         },
       });
@@ -59,30 +57,14 @@ export default function SignUpPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sign Up</CardTitle>
-        <CardDescription>Create an account to get started.</CardDescription>
+        <CardTitle>Sign In</CardTitle>
+        <CardDescription>
+          Enter your credentials to access your account.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup className="gap-y-4">
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Full Name</FieldLabel>
-                  <Input
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Enter your full name"
-                    {...field}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
             <Controller
               name="email"
               control={form.control}
@@ -124,10 +106,10 @@ export default function SignUpPage() {
               {isPending ? (
                 <>
                   <Loader2 className="mr-2 animate-spin" />
-                  <span>Signing up...</span>
+                  <span>Logging in...</span>
                 </>
               ) : (
-                <span>Sign Up</span>
+                <span>Log In</span>
               )}
             </Button>
           </FieldGroup>

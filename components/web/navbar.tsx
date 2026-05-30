@@ -1,13 +1,16 @@
- "use client";
+"use client";
 
 import Link from "next/link";
 import { Button, buttonVariants } from "../ui/button";
 import { ThemeToggle } from "./theme-toggle";
 import { useConvexAuth } from "convex/react";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function Navbar() {
   const { isAuthenticated, isLoading } = useConvexAuth();
+  const router = useRouter();
   return (
     <nav className="w-full flex items-center justify-between py-6 ">
       <div className="flex items-center gap-8 ">
@@ -38,7 +41,17 @@ export function Navbar() {
           <Button
             variant="default"
             onClick={() => {
-              authClient.signOut();
+              authClient.signOut({
+                fetchOptions: {
+                  onSuccess: () => {
+                    toast.success("Logged out successfully");
+                    router.push("/auth/login");
+                  },
+                  onError: (error) => {
+                    toast.error(error.error.message || "Failed to log out");
+                  }
+                },
+              });
             }}
           >
             Log Out
