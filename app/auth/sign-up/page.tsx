@@ -87,7 +87,7 @@ export default function SignUpPage() {
                   <FieldLabel>Password</FieldLabel>
                   <Input
                     aria-invalid={fieldState.invalid}
-                    placeholder="******"
+                    placeholder="Enter your password"
                     type="password"
                     {...field}
                   />
@@ -97,6 +97,7 @@ export default function SignUpPage() {
                 </Field>
               )}
             />
+            
             <Button type="submit" className={buttonVariants({ variant: "default" })}>
                 Sign Up
             </Button>
