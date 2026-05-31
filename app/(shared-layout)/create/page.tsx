@@ -12,10 +12,20 @@ import {
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { api } from "@/convex/_generated/api";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "convex/react";
 import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import * as React from "react";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function CreateRoutePage() {
+  const mutation = useMutation(api.post.createPost);
+  const router = useRouter();
+  const [isPending, startTransition] = React.useTransition();
   const form = useForm({
     resolver: zodResolver(createBlogSchema),
     defaultValues: {
@@ -24,6 +34,25 @@ export default function CreateRoutePage() {
     },
   });
 
+function onSubmit(values: z.infer<typeof createBlogSchema>) {
+  startTransition(() => {
+    mutation({
+      title: values.title,
+      body: values.content,
+    })
+      .then(() => {
+        form.reset();
+        toast.success("Blog post created successfully!");
+        router.push("/"); // Redirect to the home page
+      })
+      .catch((error: { message?: string; error?: { message?: string } }) => {
+        toast.error(
+          "Failed to create blog post: " +
+            (error.error?.message ?? error.message ?? "Unknown error")
+        );
+      });
+  });
+}
   return (
     <div>
       <div className="space-y-2 text-center mb-6">
@@ -41,7 +70,7 @@ export default function CreateRoutePage() {
           <CardDescription>Create a new blog article.</CardDescription>
         </CardHeader>
 		<CardContent>
-		  <form>
+		  <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
         <FieldGroup>
             <Controller
               name="title"
@@ -79,8 +108,15 @@ export default function CreateRoutePage() {
               )}
             />
 
-            <Button type="submit" className="w-full">
-              Create Post
+            <Button type="submit" disabled={isPending}>
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 animate-spin" />
+                  <span>Creating post...</span>
+                </>
+              ) : (
+                <span>Create Post</span>
+              )}
             </Button>
         </FieldGroup>
 		  </form>
