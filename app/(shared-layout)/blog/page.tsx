@@ -4,13 +4,13 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const fallbackImageUrl =
   "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=80";
 
-
 export default async function BlogRoutePage() {
-  const data = await fetchQuery(api.post.getPosts);
 
   return (
     <div className="">
@@ -22,40 +22,70 @@ export default async function BlogRoutePage() {
           Welcome to the blog! Here are some posts:
         </p>
       </div>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {data?.map((post) => (
-          <Card key={post._id} className="pt-0">
-            <div className="relative h-48 w-full overflow-hidden">
-              <Image 
-                src={fallbackImageUrl}
-                alt={post.title} 
-                className="rounded-t-lg"
-                fill />
-            </div>  
-            <CardContent>
-              <Link
-                className="text-sm text-foreground transition-colors hover:text-primary"
-                href={`/blog/${post._id}`}
-              >
-                <h1 className="text-2xl font-bold">
-                  {post.title}
-                </h1>
-              </Link>
-              <p className="text-sm text-muted-foreground mt-2">
-                {post.body.length > 100
-                  ? post.body.substring(0, 100) + "..."
-                  : post.body}
-              </p>
-            </CardContent>
-            <CardFooter>
-                <Link href={`/blog/${post._id}`} className={buttonVariants({ className: "w-full p-4" })}>
-                  Read more
-                </Link>
-              </CardFooter>
-          </Card>
-        ))}
-      </div>
+      <Suspense 
+      fallback={ skeletonLoadingUi()}
+      > 
+        {getData()}
+      </Suspense>
     </div>
   );
+}
+
+async function getData() {
+
+  const data = await fetchQuery(api.post.getPosts);
+  return (
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {data?.map((post) => (
+        <Card key={post._id} className="pt-0">
+          <div className="relative h-48 w-full overflow-hidden">
+            <Image
+              src={fallbackImageUrl}
+              alt={post.title}
+              className="rounded-t-lg"
+              fill
+            />
+          </div>
+          <CardContent>
+            <Link
+              className="text-sm text-foreground transition-colors hover:text-primary"
+              href={`/blog/${post._id}`}
+            >
+              <h1 className="text-2xl font-bold">{post.title}</h1>
+            </Link>
+            <p className="text-sm text-muted-foreground mt-2">
+              {post.body.length > 100
+                ? post.body.substring(0, 100) + "..."
+                : post.body}
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Link
+              href={`/blog/${post._id}`}
+              className={buttonVariants({ className: "w-full p-4" })}
+            >
+              Read more
+            </Link>
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function skeletonLoadingUi() {
+  return(
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {[...Array(4)].map((_, i) => (
+            <div key={i} className="pt-0 animate-pulse">
+              <Skeleton className="h-48 w-full rounded-t-lg" />
+              <div className="p-4 space-y-2">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+            </div>
+          ))}
+        </div>
+  )
 }
