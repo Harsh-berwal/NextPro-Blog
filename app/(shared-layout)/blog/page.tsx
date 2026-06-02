@@ -7,13 +7,15 @@ import { api } from "@/convex/_generated/api";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const fallbackImageUrl =
-  "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=80";
 
+const fallbackImageUrl = '/ImageNotUploaded.png';
+
+export const dynamic = "force-static";
+export const revalidate = 30;// Revalidate every 60 seconds
 export default async function BlogRoutePage() {
 
   return (
-    <div className="">
+    <div>
       <div className="text-center pt-5 mb-12">
         <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl">
           Our Blog
@@ -40,10 +42,11 @@ async function getData() {
         <Card key={post._id} className="pt-0">
           <div className="relative h-48 w-full overflow-hidden">
             <Image
-              src={fallbackImageUrl}
+              src={post.imageUrl ?? fallbackImageUrl}
               alt={post.title}
-              className="rounded-t-lg"
+              className="object-cover rounded-t-lg"
               fill
+              unoptimized
             />
           </div>
           <CardContent>

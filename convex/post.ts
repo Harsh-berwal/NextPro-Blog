@@ -2,22 +2,24 @@ import { mutation, query } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import { authComponent } from "./auth";
 
+
 export const createPost = mutation({
   args: {
     title: v.string(),
     body: v.string(),
+    imageStorageId: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
     const user = await authComponent.safeGetAuthUser(ctx);
-    
+
     if (!user) {
       throw new ConvexError("User not authenticated");
-    }
-    else{
+    } else {
     const blogArticleId = await ctx.db.insert("posts", {
       title: args.title,
       body: args.body,
       authorId: user._id,
+      imageStorageId: args.imageStorageId,
     });
     return blogArticleId;
     }
@@ -28,8 +30,28 @@ export const getPosts = query({
   args:{},
   handler: async (ctx) => {
     const posts = await ctx.db.query("posts").order( "desc").collect();
-    return posts;
+    return await Promise.all(
+      posts.map(async (post) => ({
+        ...post,
+        imageUrl: post.imageStorageId
+          ? await ctx.storage.getUrl(post.imageStorageId)
+          : null,
+      }))
+    );
   }
 })
 
-//ctx = context object that provides access to the database and other utilities
+export const generateImageUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const user = await authComponent.safeGetAuthUser(ctx);
+
+    if (!user) {
+      throw new ConvexError("User not authenticated");
+    }
+
+    const url = await ctx.storage.generateUploadUrl();
+    return url;
+  }
+});
+
