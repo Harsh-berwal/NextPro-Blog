@@ -43,8 +43,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         Back to Blog
       </Link>
 
-      <div className="relative w-full h-400 mb-6 bg-muted rounded-xl
-        overflow-hidden shadow-sm">
+        <div className="relative w-full mb-6 bg-muted rounded-xl overflow-hidden shadow-sm max-w-full mx-auto h-64 sm:h-96 
+        md\:h-[400px]">
             <Image
                 src={post.imageUrl || "/ImageNotUploaded.png"}
                 alt={post.title}
