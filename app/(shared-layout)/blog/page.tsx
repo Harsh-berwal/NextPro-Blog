@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const fallbackImageUrl = '/ImageNotUploaded.png';
 
 export const dynamic = "force-static";
-export const revalidate = 30;// Revalidate every 60 seconds
+export const revalidate = 30;
 export default async function BlogRoutePage() {
 
   return (
