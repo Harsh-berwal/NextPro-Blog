@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+
+export const metadata: Metadata = {
+    title: "Account | NextPro",
+    description: "Sign in or create a NextPro account.",
+};
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
     return (

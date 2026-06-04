@@ -7,12 +7,26 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Separator } from "@/components/ui/separator";
 import { CommentSection } from "@/components/web/CommentSection";
+import { Metadata } from "next";
 
 interface BlogPostPageProps {
   params: Promise<{ blogId: Id<"posts"> }>;
 };
 
-
+export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+    const { blogId } = await params;
+    const post = await fetchQuery(api.post.getPostById, { postId: blogId });
+    if (!post) {
+        return {
+            title: "Post Not Found | NextPro",
+            description: "The blog post you are looking for does not exist.",
+        };
+    }
+    return {
+        title: `${post.title} | NextPro`,
+        description: post.body.slice(0, 160), // Use the first 160 characters of the post body as the description 
+    };
+}
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
     const { blogId } = await params;
 
