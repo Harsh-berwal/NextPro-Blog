@@ -2,7 +2,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { fetchQuery } from "convex/nextjs";
+import { fetchQuery, preloadQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Separator } from "@/components/ui/separator";
@@ -15,7 +15,13 @@ interface BlogPostPageProps {
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
     const { blogId } = await params;
-    const post = await fetchQuery(api.post.getPostById, { postId: blogId });
+
+    //to run both queries in parallel
+
+    const [post, preloadedComments] = await Promise.all([
+        fetchQuery(api.post.getPostById, { postId: blogId }),
+        preloadQuery(api.comments.getCommentsByPostId, { postId: blogId }),
+    ]);
     
     if (!post) {
         return (
@@ -61,7 +67,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <p className="text-lg leading-relaxed text-foreground/90 whitespace-pre-wrap">{post.body}</p>
 
         <Separator className="my-8" />
-        <CommentSection />
+        <CommentSection preloadedComments={preloadedComments} />
     </div>
   );
 }

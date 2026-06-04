@@ -9,26 +9,26 @@ import { Button } from "../ui/button";
 import { useParams } from "next/navigation";
 import { MessageSquare } from "lucide-react";
 import { Id } from "@/convex/_generated/dataModel";
-import { useMutation } from "convex/react";
+import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import * as React from "react";
 import { Textarea } from "../ui/textarea";
-import { useQuery } from "convex/react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Separator } from "@/components/ui/separator";
+
 
 function getAvatarUrl(seed: string) {
   return `https://avatar.vercel.sh/${encodeURIComponent(seed)}`;
 }
 
-export function CommentSection() {
+export function CommentSection(props: {  
+  preloadedComments: Preloaded<typeof api.comments.getCommentsByPostId>;
+}) { 
   const params = useParams() as { blogId: Id<"posts"> };
-  const data = useQuery(api.comments.getCommentsByPostId, {
-    postId: params.blogId,
-  });
+  const data = usePreloadedQuery(props.preloadedComments);
   const [isPending, startTransition] = React.useTransition();
   const createComment = useMutation(api.comments.addComment);
   const form = useForm({
