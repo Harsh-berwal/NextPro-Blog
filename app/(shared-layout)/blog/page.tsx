@@ -7,12 +7,13 @@ import { api } from "@/convex/_generated/api";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Metadata } from "next";
+import { connection } from "next/server";
 
 
 const fallbackImageUrl = '/ImageNotUploaded.png';
 
-export const dynamic = "force-static";
-export const revalidate = 30;
+// export const dynamic = "force-static";
+// export const revalidate = 30;
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -41,6 +42,7 @@ export default async function BlogRoutePage() {
 
 async function getData() {
 
+  await connection();
   const data = await fetchQuery(api.post.getPosts);
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
