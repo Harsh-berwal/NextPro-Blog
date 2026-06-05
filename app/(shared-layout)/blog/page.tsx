@@ -7,7 +7,8 @@ import { api } from "@/convex/_generated/api";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Metadata } from "next";
-import { connection } from "next/server";
+import { cacheLife, cacheTag } from "next/cache";
+
 
 
 const fallbackImageUrl = '/ImageNotUploaded.png';
@@ -20,6 +21,9 @@ export const metadata: Metadata = {
   description: "Read our latest blog posts and updates.",
 };
 export default async function BlogRoutePage() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("blog");
 
   return (
     <div>
@@ -41,8 +45,6 @@ export default async function BlogRoutePage() {
 }
 
 async function getData() {
-
-  await connection();
   const data = await fetchQuery(api.post.getPosts);
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

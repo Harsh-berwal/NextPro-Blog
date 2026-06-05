@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,8 +12,8 @@ export async function POST(req: NextRequest) {
       // ignore parse errors and use default
     }
 
-    // Call revalidatePath for the requested path.
-    revalidatePath(path);
+    // updateTag("blog"); // Invalidate the "blog" cache tag for tagged pages
+    revalidatePath(path); // Also explicitly revalidate the blog page path
 
     return NextResponse.json({ ok: true, revalidated: path });
   } catch (err) {
