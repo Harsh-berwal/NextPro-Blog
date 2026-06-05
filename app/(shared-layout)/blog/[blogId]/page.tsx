@@ -8,6 +8,9 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Separator } from "@/components/ui/separator";
 import { CommentSection } from "@/components/web/CommentSection";
 import { Metadata } from "next";
+import PostPresence from "@/components/web/PostPresence";
+import { fetchAuthQuery } from "@/lib/auth-server";
+import { redirect } from "next/navigation";
 
 interface BlogPostPageProps {
   params: Promise<{ blogId: Id<"posts"> }>;
@@ -15,6 +18,7 @@ interface BlogPostPageProps {
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
     const { blogId } = await params;
+
     const post = await fetchQuery(api.post.getPostById, { postId: blogId });
     if (!post) {
         return {
@@ -30,12 +34,17 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
     const { blogId } = await params;
 
-    //to run both queries in parallel
-
-    const [post, preloadedComments] = await Promise.all([
+    // Run the page data and auth-protected presence query in parallel.
+    const [post, preloadedComments, userId] = await Promise.all([
         fetchQuery(api.post.getPostById, { postId: blogId }),
         preloadQuery(api.comments.getCommentsByPostId, { postId: blogId }),
+        fetchAuthQuery(api.presence.getUserId, {}),
     ]);
+
+    //multi-layer protection for auth, first in proxy, then here in case user bypass proxy
+    if(!userId) {
+      return redirect("/auth/login");
+    }
     
     if (!post) {
         return (
@@ -74,7 +83,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       </div>
         <div className="space-y-4 flex flex-col">
             <h1 className="text-3xl font-bold tracking-tight">{post.title}</h1>
-            <p className="text-muted-foreground text-sm">Posted On: {post._creationTime ? new Date(post._creationTime).toLocaleDateString() : "Unknown"}</p>
+            <div className="flex items-center gap-6">
+              <p className="text-muted-foreground text-sm">Posted On: {post._creationTime ? new Date(post._creationTime).toLocaleDateString() : "Unknown"}</p>
+              <PostPresence roomId={post._id} userId={userId} />
+            </div>
         </div>
         <Separator className="my-8" />
 
