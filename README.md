@@ -18,6 +18,14 @@ The application is built with **Next.js** and **TypeScript**, with **Convex** ha
 
 ---
 
+## 📸 Screenshots
+
+### 📝 Blog Platform
+
+![NextPro Blog Platform](blogPost.png)
+
+---
+
 ## ✨ Features
 
 - 📝 Create and publish blog posts
