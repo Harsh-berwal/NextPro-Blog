@@ -79,3 +79,19 @@ The application is built with **Next.js** and **TypeScript**, with **Convex** ha
                           │
                           ▼
                        Database
+```
+
+## 📁 Project Structure
+
+```text
+NextPro-Blog/
+├── app/             # Next.js pages and routes
+├── components/      # Reusable UI components
+├── convex/          # Convex backend and database functions
+├── lib/             # Utility functions
+├── public/          # Static assets
+├── .gitignore       # Git ignored files
+├── next.config.ts   # Next.js configuration
+├── package.json     # Dependencies and scripts
+├── proxy.ts         # Application proxy
+└── tsconfig.json    # TypeScript configuration
